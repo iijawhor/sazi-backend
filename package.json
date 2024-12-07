@@ -1,0 +1,19 @@
+{
+  "name": "saji-backend",
+  "version": "1.0.0",
+  "description": "saji - a school management system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "saji",
+    "backend"
+  ],
+  "author": "jawhor ali khan",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
