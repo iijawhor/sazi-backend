@@ -8,7 +8,15 @@ dotenv.config({
 
 const app = express();
 
-connectDB();
+connectDB()
+  .then(() => {
+    app.listen(process.env.PORT || 4000, () => {
+      console.log(`server is running on port : ${process.env.PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MONOG DB connection failed...");
+  });
 
 // ;(async () => { instead if this connect in another file it will be good approach in db.js
 //     try {
@@ -19,7 +27,6 @@ connectDB();
 //        })
 //        app.listen(process.env.PORT,()=>{
 //         console.log(`app is listening on port ${process.env.PORT}`);
-
 //        })
 //     } catch (error) {
 //         console.error("ERROR: ",error)
