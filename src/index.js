@@ -1,12 +1,10 @@
 import dotenv from "dotenv";
 import connectDB from "./db/db.js";
 import express from "express";
-
+import { app } from "./app.js";
 dotenv.config({
   path: "./env",
 });
-
-const app = express();
 
 connectDB()
   .then(() => {
@@ -15,7 +13,7 @@ connectDB()
     });
   })
   .catch((err) => {
-    console.log("MONOG DB connection failed...");
+    console.log("MongoDB connection failed...");
   });
 
 // ;(async () => { instead if this connect in another file it will be good approach in db.js
