@@ -13,30 +13,40 @@ const registerUser = asyncHandler(async (req, res) => {
   // remove password and refreshtoken field from reponse
   // check for user creation
   // return response
-  const { usermname, fullname, password, email } = req.body;
+  const { username, fullname, password, email } = req.body;
   console.log("email... ", email);
 
   if (
-    [usermname, fullname, email, password].some((filed) => filed?.trim() === "")
+    [username, fullname, email, password].some((filed) => filed?.trim() === "")
   ) {
     throw new ApiError(400, "All fields are required");
   }
 
-  const existedUser = User.findOne({
-    $or: [{ usermname }, { email }],
+  const existedUser = await User.findOne({
+    $or: [{ username }, { email }],
   });
   if (existedUser) {
-    throw new ApiError(409, "User with ekail or username is already exist");
+    throw new ApiError(409, "User with email or username is already exist");
   }
 
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
-  console.log(avatarLocalPath);
+  // const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  let coverImgLocalPath;
+
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImgLocalPath = req.files.coverImage[0].path;
+  }
+
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar is required");
   }
   const avatar = await uploadOnCloudinary(avatarLocalPath);
-  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+  const coverImage = await uploadOnCloudinary(coverImgLocalPath);
+
   if (!avatar) {
     throw new ApiError(400, "Avatar file is required");
   }
@@ -47,7 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImage: coverImage?.url || "",
     email,
     password,
-    usermname: usermname.toLowerCase(),
+    username: username.toLowerCase(),
   });
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
