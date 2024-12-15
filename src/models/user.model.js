@@ -3,30 +3,40 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 const userSchema = new Schema(
   {
-    username: {
+    fullname: {
       type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
+      required: [true, "Please enter your fullname"],
       trim: true,
       index: true,
+    },
+    username: {
+      type: String,
+      required: [true, "Please enter your fullname"],
+      trim: true,
+      index: true,
+      unique: true,
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required!"],
       unique: true,
       lowercase: true,
       trim: true,
     },
-    fullname: {
+
+    experties: {
       type: String,
-      required: true,
       trim: true,
       index: true,
+      // required: [true, "Please enter your experties"],
+    },
+    experience: {
+      type: String,
+      trim: true,
     },
     avatar: {
       type: String, //cloudinary
-      required: true,
+      required: [true, "Avatar is required!"],
     },
     coverImage: {
       type: String, //cloudinary
@@ -65,8 +75,8 @@ userSchema.methods.generateAccesstoken = function () {
     {
       _id: this._id,
       email: this.email,
-      username: this.username,
       fullname: this.fullname,
+      username: this.username,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {

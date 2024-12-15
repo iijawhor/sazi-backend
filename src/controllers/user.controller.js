@@ -6,18 +6,18 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const registerUser = asyncHandler(async (req, res) => {
   // get user details from frontend
   // validate user data - not empty,correct format
-  // check if user already exist :username,email
+  // check if user already exist :email
   // check for images ,check for avatar
   // upload them to cloudinary, avatar
   // create user object - create entry in db
   // remove password and refreshtoken field from reponse
   // check for user creation
   // return response
-  const { username, fullname, password, email } = req.body;
+  const { fullname, username, password, email } = req.body;
   console.log("email... ", email);
 
   if (
-    [username, fullname, email, password].some((filed) => filed?.trim() === "")
+    [fullname, username, email, password].some((filed) => filed?.trim() === "")
   ) {
     throw new ApiError(400, "All fields are required");
   }
@@ -57,7 +57,7 @@ const registerUser = asyncHandler(async (req, res) => {
     coverImage: coverImage?.url || "",
     email,
     password,
-    username: username.toLowerCase(),
+    username,
   });
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
