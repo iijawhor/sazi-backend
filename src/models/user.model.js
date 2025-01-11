@@ -16,6 +16,12 @@ const userSchema = new Schema(
       index: true,
       unique: true,
     },
+    role: {
+      type: String,
+      enum: ["teacher", "student", "admin"],
+      required: true,
+      default: "null",
+    },
     email: {
       type: String,
       required: [true, "Email is required!"],
