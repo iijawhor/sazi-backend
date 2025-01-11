@@ -1,6 +1,6 @@
 import mongoose, { isValidObjectId } from "mongoose";
-import { Assignment } from "../models/assignment.model";
-import { asyncHandler } from "../utils/asyncHandler";
+import { Assignment } from "../models/assignment.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {
@@ -230,5 +230,4 @@ export {
   updateAssignment,
   updateAssignmentPdfFile,
   removeAssignment,
-  getAllAssignmentById,
 };
