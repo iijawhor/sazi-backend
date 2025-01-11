@@ -283,7 +283,7 @@ const updateUserAccountDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Account updated successfullly"));
 });
 
-const updateUserAvatar = asyncHandler(async (req, body) => {
+const updateUserAvatar = asyncHandler(async (req, res) => {
   // get the file path -
   const avatarLocalFilePath = req.file?.path;
   // check is filepath present or not
@@ -335,6 +335,62 @@ const updateUserCoverImage = asyncHandler(async (req, body) => {
     .status(200)
     .json(new ApiResponse(200, user, "Cover image updated successfully"));
 });
+// get user assignments
+const getAllAssignments = asyncHandler(async (req, res) => {
+  const { assignmentId } = req.params;
+  const { userId, role } = req.user;
+  if (!isValidObjectId(userId)) {
+    throw new ApiError(400, "Invalid user ID");
+  }
+
+  const assignments = await User.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(req.user?._id) } },
+    {
+      $lookup: {
+        from: "assignments",
+        localField: "assignmentHistory",
+        foreignField: "_id",
+        as: "assignmentHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "ownerDetails",
+              pipeline: [
+                {
+                  $project: {
+                    fullname: 1,
+                    username: 1,
+                    email: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              ownerDetails: {
+                $first: "$ownerDetails",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        assignments[0].assignmentHistory,
+        "Assignment fetched successfully"
+      )
+    );
+});
 
 export {
   registerUser,
@@ -347,4 +403,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   deleteOldImage,
+  getAllAssignments,
 };

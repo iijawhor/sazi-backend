@@ -5,10 +5,25 @@ import { types } from "util";
 const assignementSchema = new Schema(
   {
     pdfFile: {
-      type: String,
-      required: true,
+      type: String, //string from cloudinary
+      required: function () {
+        return !this.textAsssignment;
+      },
       index: true,
     },
+    textAsssignment: {
+      type: String, // if user don't want to add padf file then he can just the text as assignment
+      required: function () {
+        return !this.pdfFile;
+      },
+      index: true,
+    },
+    assignmentAnswer: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     thumbnail: {
       type: String,
       required: true,
@@ -18,10 +33,7 @@ const assignementSchema = new Schema(
       required: true,
       index: true,
     },
-    description: {
-      type: String,
-      required: true,
-    },
+
     grade: {
       type: String,
       required: true,
@@ -54,7 +66,10 @@ const assignementSchema = new Schema(
       required: true,
       index: true,
     },
-
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     views: [
       {
         type: Schema.Types.ObjectId,
@@ -69,6 +84,12 @@ const assignementSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    submittedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     totalMarks: {
       type: Number,
       required: true,
