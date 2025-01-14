@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 const app = express();
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN || "http://localhost:4000",
     credentials: true,
   })
 );
@@ -17,6 +17,6 @@ app.use(cookieParser());
 import userRouter from "./routes/user.routes.js";
 import assignmentRouter from "./routes/assignment.routes.js";
 app.use("/api/v1/users", userRouter);
-app.use("api/v1/assignments", assignmentRouter);
+app.use("/api/v1/assignments", assignmentRouter);
 
 export { app };
