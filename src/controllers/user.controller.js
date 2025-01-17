@@ -33,11 +33,13 @@ const registerUser = asyncHandler(async (req, res) => {
   // remove password and refreshtoken field from reponse
   // check for user creation
   // return response
-  const { fullname, username, password, email } = req.body;
+  const { fullname, username, password, email, role } = req.body;
   console.log("email... ", email);
 
   if (
-    [fullname, username, email, password].some((filed) => filed?.trim() === "")
+    [fullname, username, email, password, role].some(
+      (filed) => filed?.trim() === ""
+    )
   ) {
     throw new ApiError(400, "All fields are required");
   }
@@ -49,7 +51,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User with email or username is already exist");
   }
 
-  const avatarLocalPath = req.files?.avatar[0]?.path;
+  const avatarLocalPath = req.files?.avatar[0].path;
   // const coverImageLocalPath = req.files?.coverImage[0]?.path;
   let coverImgLocalPath;
 
@@ -58,7 +60,7 @@ const registerUser = asyncHandler(async (req, res) => {
     Array.isArray(req.files.coverImage) &&
     req.files.coverImage.length > 0
   ) {
-    coverImgLocalPath = req.files.coverImage[0].path;
+    coverImgLocalPath = req.files?.coverImage[0].path;
   }
 
   if (!avatarLocalPath) {
@@ -78,6 +80,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     password,
     username,
+    role,
   });
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
