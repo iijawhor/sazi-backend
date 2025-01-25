@@ -1,38 +1,27 @@
 import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
-import { types } from "util";
-
 const assignementSchema = new Schema(
   {
-    pdfFile: {
-      type: String, //string from cloudinary
-      required: function () {
-        return !this.textAsssignment;
-      },
-      index: true,
-    },
-    textAsssignment: {
-      type: String, // if user don't want to add padf file then he can just the text as assignment
-      required: function () {
-        return !this.pdfFile;
-      },
-      index: true,
-    },
-    assignmentAnswer: [
-      {
-        type: String,
-        required: true,
-      },
-    ],
-    thumbnail: {
-      type: String,
-      required: true,
-    },
     title: {
       type: String,
       required: true,
       index: true,
     },
+
+    pdfFile: {
+      type: String, //string from cloudinary
+      index: true,
+    },
+    description: {
+      type: String,
+      index: true,
+    },
+    assignmentAnswer: [
+      {
+        type: String,
+        index: true,
+      },
+    ],
 
     grade: {
       type: String,
@@ -56,19 +45,14 @@ const assignementSchema = new Schema(
         "computer application",
         "chemistry",
         "bengali",
-        "islam parichay",
         "arabic",
         "work education",
       ],
     },
     dueDate: {
-      type: Date,
+      type: String,
       required: true,
       index: true,
-    },
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
     },
     views: [
       {
@@ -78,7 +62,7 @@ const assignementSchema = new Schema(
     ],
     isPublished: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
@@ -91,7 +75,7 @@ const assignementSchema = new Schema(
       },
     ],
     totalMarks: {
-      type: Number,
+      type: String,
       required: true,
     },
   },
