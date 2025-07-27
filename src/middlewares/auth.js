@@ -1,22 +1,36 @@
 import jwt from "jsonwebtoken";
-import { User } from "../allFiles.js";
+import User from "../models/user.model.js";
 const userAuth = async (req, res, next) => {
   try {
-    const cookie = req.cookies;
-    const { token } = req.cookies;
+    // ✅ Get token from cookies or Authorization header
+    const token =
+      req.cookies?.token ||
+      (req.headers["authorization"] &&
+        req.headers["authorization"].split(" ")[1]);
+
     if (!token) {
-      return res.status(401).send("Please Login");
+      return res
+        .status(401)
+        .json({ error: "Please log in to access this resource" });
     }
-    const decoddedObject = await jwt.verify(token, "jak@sazi26462");
-    const { _id } = decoddedObject;
-    const user = await User.findById({ _id });
+
+    // ✅ Verify token
+    const decoded = jwt.verify(
+      token,
+      process.env.ACCESS_TOKEN_SECRET || "defaultSecret"
+    );
+
+    // ✅ Fetch user
+    const user = await User.findById(decoded._id).select("-password");
     if (!user) {
-      throw new Error("User not found!");
+      return res.status(404).json({ error: "User not found" });
     }
-    req.user = user;
+
+    req.user = user; // Attach user object to request
     next();
   } catch (error) {
-    return res.status(401).json({ error: "Unauthorized : " + error.message });
+    return res.status(401).json({ error: "Unauthorized: " + error.message });
   }
 };
+
 export default userAuth;

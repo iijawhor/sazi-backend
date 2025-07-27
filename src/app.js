@@ -5,8 +5,23 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:000",
+    origin: process.env.CORS_ORIGIN || "http://localhost:7000",
     credentials: true
   })
 );
+
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
+app.use((err, req, res, next) => {
+  console.error(err); // Log the actual error
+
+  res.status(err.statusCode || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error"
+  });
+});
+import userRouter from "./routes/user.route.js";
+app.use("/api/v1/users", userRouter);
 export { app };
