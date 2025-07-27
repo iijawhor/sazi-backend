@@ -1,51 +1,32 @@
 import mongoose from "mongoose";
 import validator from "validator";
 import jwt from "jsonwebtoken";
-import bcrypt, { hash } from "bcrypt";
+import bcrypt from "bcrypt";
+
 const userSchema = new mongoose.Schema(
   {
-    firstName: {
-      type: String,
-      required: [true, "Please enter first your name"]
-    },
-    lastName: {
-      type: String,
-      required: [true, "Please enter last your name"]
-    },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
     email: {
       type: String,
-      validator(value) {
-        if (!validator.isEmail(value)) {
-          throw new Error("Invalid Email Address" + value);
-        }
-      },
+      required: true,
       unique: true,
-      trim: true,
       lowercase: true,
-      required: [true, "Please enter email address"]
+      trim: true,
+      validate: [validator.isEmail, "Invalid Email Address"]
     },
     password: {
       type: String,
       required: true,
-      validator(value) {
-        if (!validator.isStrongPassword(value))
-          throw new Error(`Enter a Strong password : 324@Jak!`);
-      }
+      validate: [validator.isStrongPassword, "Enter a strong password"]
     },
     phoneNumber: {
       type: String,
+      required: true,
       validate: {
-        validator: function (value) {
-          return /^\d{10}$/.test(value);
-        },
-        message: (props) => `Phone number must be 10 digits: ${props.value}`
-      },
-      required: true
-    },
-    class: { type: String },
-    joiningDate: {
-      type: Date,
-      required: true
+        validator: (value) => /^\d{10}$/.test(value),
+        message: "Phone number must be 10 digits"
+      }
     },
     class: { type: String, default: "" },
     joiningDate: { type: Date, default: Date.now },
@@ -69,33 +50,36 @@ const userSchema = new mongoose.Schema(
       default: null
     }
   },
-
   { timestamps: true }
 );
-const User = mongoose.model("User", userSchema);
+
+// ✅ Hash password before saving
 userSchema.pre("save", async function (next) {
-  const hashedPassword = await hash(this.password, 10);
-  this.password = hashedPassword;
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
-userSchema.methods.getJWT = async function () {
-  const user = this;
-  const token = await jwt.sign({ _id: user._id }, "jak@sazi26462", {
+
+// ✅ Generate JWT
+userSchema.methods.getJWT = function () {
+  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET || "dev@akdjo834", {
     expiresIn: "3d"
   });
-  return token;
 };
-userSchema.methods.validatePassword = async function (password) {
-  const user = this;
-  const isPasswordValid = await bcrypt.compare(password, this.password);
-  return isPasswordValid;
+
+// ✅ Validate password
+userSchema.methods.validatePassword = function (password) {
+  return bcrypt.compare(password, this.password);
 };
+
+// ✅ Remove grade for non-students
 userSchema.pre("save", function (next) {
   if (this.role !== "student") {
     this.grade = undefined;
-    this.section = undefined;
   }
   next();
 });
+
+const User = mongoose.model("User", userSchema);
 
 export default User;

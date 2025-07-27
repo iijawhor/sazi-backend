@@ -1,15 +1,17 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import multer from "multer";
+const upload = multer();
 const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:7000",
+    origin: process.env.CORS_ORIGIN || "http://localhost:8000",
     credentials: true
   })
 );
-
+app.use(upload.none()); // Parse form-data without files
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
@@ -23,5 +25,5 @@ app.use((err, req, res, next) => {
   });
 });
 import userRouter from "./routes/user.route.js";
-app.use("/api/v1/users", userRouter);
+app.use("/api/v1/users/", userRouter);
 export { app };
