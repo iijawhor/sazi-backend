@@ -28,26 +28,22 @@ const userSchema = new mongoose.Schema(
         message: "Phone number must be 10 digits"
       }
     },
-    class: { type: String, default: "" },
+    grade: { type: String, default: "" },
+    section: { type: String, default: "" },
     joiningDate: { type: Date, default: Date.now },
     role: {
       type: String,
       enum: ["admin", "teacher", "student"],
-      default: "student"
+      default: "admin"
     },
     age: { type: String, default: "" },
     gender: { type: String, default: "" },
     photoUrl: { type: String, default: "" },
     about: { type: String, maxLength: 80, default: "" },
-    grade: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Grade",
-      default: null
-    },
+
     assignedClasses: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Grade",
-      default: null
+      ref: "Grade"
     }
   },
   { timestamps: true }
@@ -75,7 +71,8 @@ userSchema.methods.validatePassword = function (password) {
 // ✅ Remove grade for non-students
 userSchema.pre("save", function (next) {
   if (this.role !== "student") {
-    this.grade = undefined;
+    delete this.grade;
+    delete this.section;
   }
   next();
 });
