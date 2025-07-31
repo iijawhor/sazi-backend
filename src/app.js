@@ -25,5 +25,7 @@ app.use((err, req, res, next) => {
   });
 });
 import userRouter from "./routes/user.route.js";
+import searchRouter from "./routes/search.route.js";
 app.use("/api/v1/users/", userRouter);
+app.use("/api/v1/users/", searchRouter);
 export { app };

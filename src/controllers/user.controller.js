@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import { searchQuery } from "./searchHelper.js";
 const registerUser = async (req, res) => {
   const { firstName, lastName, phoneNumber, password, email } = req.body;
   try {
@@ -41,4 +42,44 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 };
-export { registerUser };
+const searchUser = async (req, res) => {
+  const { query, page = 1, limit = 15 } = req.query;
+
+  // ✅ Validate input
+  if (!query || query.length < 3) {
+    return res.status(400).json({
+      success: false,
+      message: "Please enter at least 3 characters to search."
+    });
+  }
+
+  try {
+    // ✅ Call reusable helper
+    const result = await searchQuery(
+      User,
+      query,
+      ["firstName", "lastName", "email", "phoneNumber"],
+      page,
+      limit
+    );
+
+    // ✅ Send response
+    res.status(200).json({
+      success: true,
+      message:
+        result?.length > 0
+          ? `Found ${result.length} matching users.`
+          : "No users found matching your search.",
+      data: result
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
+};
+
+export { registerUser, searchUser };
