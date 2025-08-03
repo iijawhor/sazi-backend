@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import { searchQuery } from "./searchHelper.js";
+import bcrypt from "bcrypt";
+import validator from "validator";
 const registerUser = async (req, res) => {
   const { firstName, lastName, phoneNumber, password, email } = req.body;
   try {
@@ -42,6 +44,36 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ error: error.message });
   }
 };
+const login = async (req, res) => {
+  const { email, password } = req.body;
+  console.log("EEEEE,PPPP", email, password);
+  try {
+    if (!validator.isEmail(email)) {
+      return res
+        .status(400)
+        .json({ message: "User with this email is not foound!" });
+    }
+    const user = await User.findOne({ email });
+    const isValidpassword = await bcrypt.compare(password, user.password);
+    if (!isValidpassword) {
+      return res.status(400).json({ message: "Incorrect credentials" });
+    }
+
+    const token = await user.getJWT();
+    console.log("TOKEN in login", token);
+
+    res.cookie("token", token, { httpOnly: true }); // you can expire cookie alsos
+    // res.send(user);
+    return res.status(200).json({
+      message: "Logged In successfully",
+      token, // ✅ Send token
+      user
+    });
+  } catch (error) {
+    console.log("Error in login");
+    console.log(error);
+  }
+};
 const searchUser = async (req, res) => {
   const { query, page = 1, limit = 15 } = req.query;
 
@@ -82,4 +114,4 @@ const searchUser = async (req, res) => {
   }
 };
 
-export { registerUser, searchUser };
+export { registerUser, searchUser, login };

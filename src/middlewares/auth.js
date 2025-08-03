@@ -11,14 +11,11 @@ const userAuth = async (req, res, next) => {
     if (!token) {
       return res
         .status(401)
-        .json({ error: "Please log in to access this resource" });
+        .json({ error: "Unauthorized requests! Please Login" });
     }
 
     // ✅ Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.ACCESS_TOKEN_SECRET || "defaultSecret"
-    );
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     // ✅ Fetch user
     const user = await User.findById(decoded._id).select("-password");

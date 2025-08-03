@@ -55,12 +55,15 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
-
 // ✅ Generate JWT
 userSchema.methods.getJWT = function () {
-  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET || "dev@akdjo834", {
-    expiresIn: "3d"
-  });
+  return jwt.sign(
+    { _id: this._id },
+    process.env.ACCESS_TOKEN_SECRET || "dev@akdjo834",
+    {
+      expiresIn: "3d"
+    }
+  );
 };
 
 // ✅ Validate password
