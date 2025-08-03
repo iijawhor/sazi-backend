@@ -123,3 +123,86 @@ bcrypt for password hashing
 jsonwebtoken (JWT) for authentication
 
 cookie-parser for token handling in cookies
+
+<!-- LOGIN -->
+
+✅ README (Updates & New Methods Only)
+
+1. Login Functionality
+   File: controllers/user.controller.js
+
+New Method: login(req, res)
+
+Purpose: Handles user login using email & password.
+
+Steps Implemented:
+
+Validate email format using validator.isEmail().
+
+Fetch user by email from DB.
+
+Compare provided password with hashed password using bcrypt.compare().
+
+Generate JWT using user.getJWT().
+
+Send token in response and set it as an HTTP-only cookie for security.
+
+Response:
+
+json
+Copy
+Edit
+{
+"message": "Logged In successfully",
+"token": "<JWT_TOKEN>",
+"user": { "\_id": "...", "firstName": "...", "lastName": "...", ... }
+} 2. JWT Authentication Middleware
+File: middlewares/auth.middleware.js
+
+Updated: userAuth
+
+Purpose: Protects routes by verifying JWT token.
+
+Key Features:
+
+Extracts token from Authorization header or cookies.
+
+Verifies token using process.env.ACCESS_TOKEN_SECRET.
+
+Fetches user by decoded \_id and attaches to req.user.
+
+Returns 401 Unauthorized for invalid or missing tokens.
+
+3. User Model Enhancements
+   File: models/user.model.js
+
+Added getJWT() Method:
+
+js
+Copy
+Edit
+userSchema.methods.getJWT = function () {
+return jwt.sign({ \_id: this.\_id }, process.env.ACCESS_TOKEN_SECRET || "dev@akdjo834", {
+expiresIn: "3d"
+});
+};
+Password Hashing (Pre-Save Hook):
+
+Ensures password is hashed before saving using bcrypt.hash().
+
+Password Validation:
+
+js
+Copy
+Edit
+userSchema.methods.validatePassword = function (password) {
+return bcrypt.compare(password, this.password);
+}; 4. Routes Update
+File: routes/user.routes.js
+
+Added new route:
+
+js
+Copy
+Edit
+router.route("/login").post(login);
