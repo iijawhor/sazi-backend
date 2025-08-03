@@ -26,6 +26,8 @@ app.use((err, req, res, next) => {
 });
 import userRouter from "./routes/user.route.js";
 import searchRouter from "./routes/search.route.js";
+import attendanceRouter from "./routes/attendance.route.js";
 app.use("/api/v1/users/", userRouter);
 app.use("/api/v1/users/", searchRouter);
+app.use("/api/v1/attendance/", attendanceRouter);
 export { app };
