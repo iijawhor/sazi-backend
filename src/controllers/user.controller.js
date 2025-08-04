@@ -113,5 +113,23 @@ const searchUser = async (req, res) => {
     });
   }
 };
+const getLoggedInUser = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    console.log("REQ>>>>", req.token);
 
-export { registerUser, searchUser, login };
+    return res
+      .status(200)
+      .json({ message: "User fetched successfully", user: req.user });
+  } catch (error) {
+    console.log(error);
+
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
+export { registerUser, searchUser, login, getLoggedInUser };

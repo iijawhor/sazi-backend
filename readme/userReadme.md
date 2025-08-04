@@ -67,9 +67,7 @@ User Registration API
 This feature allows users to register with secure password hashing and JWT-based authentication.
 
 📌 Endpoint
-bash
-Copy
-Edit
+
 POST /api/v1/users/register
 ✅ Request Body
 Send JSON payload:
@@ -150,8 +148,7 @@ Send token in response and set it as an HTTP-only cookie for security.
 Response:
 
 json
-Copy
-Edit
+
 {
 "message": "Logged In successfully",
 "token": "<JWT_TOKEN>",
@@ -178,9 +175,6 @@ Returns 401 Unauthorized for invalid or missing tokens.
 
 Added getJWT() Method:
 
-js
-Copy
-Edit
 userSchema.methods.getJWT = function () {
 return jwt.sign({ \_id: this.\_id }, process.env.ACCESS_TOKEN_SECRET || "dev@akdjo834", {
 expiresIn: "3d"
@@ -193,8 +187,7 @@ Ensures password is hashed before saving using bcrypt.hash().
 Password Validation:
 
 js
-Copy
-Edit
+
 userSchema.methods.validatePassword = function (password) {
 return bcrypt.compare(password, this.password);
 }; 4. Routes Update
@@ -202,7 +195,93 @@ File: routes/user.routes.js
 
 Added new route:
 
-js
-Copy
-Edit
 router.route("/login").post(login);
+Authentication APIs
+
+1. Register User
+   Endpoint:
+
+bash
+POST /api/v1/users/register
+Request Body:
+
+json
+{
+"firstName": "John",
+"lastName": "Doe",
+"email": "john@example.com",
+"phoneNumber": "9876543210",
+"password": "securePassword123"
+}
+Response:
+
+json
+{
+"success": true,
+"message": "User registered successfully",
+"newUser": {
+"\_id": "userId",
+"firstName": "John",
+"lastName": "Doe",
+"email": "john@example.com",
+"phoneNumber": "9876543210"
+}
+} 2. Login User
+Endpoint:
+
+POST /api/v1/users/login
+Request Body:
+
+json
+
+{
+"email": "john@example.com",
+"password": "securePassword123"
+}
+Response:
+
+{
+"message": "Logged In successfully",
+"token": "JWT_TOKEN",
+"user": {
+"\_id": "userId",
+"firstName": "John",
+"lastName": "Doe",
+"email": "john@example.com"
+}
+} 3. Get Logged-In User ✅ (New)
+Endpoint:
+
+GET /api/v1/users/getLoggedInUser
+Headers:
+
+makefile
+Authorization: Bearer <JWT_TOKEN>
+Response:
+
+json
+{
+"message": "User fetched successfully",
+"user": {
+"\_id": "userId",
+"firstName": "John",
+"lastName": "Doe",
+"email": "john@example.com",
+"phoneNumber": "9876543210"
+}
+}
+Error Cases:
+
+If token is missing or invalid:
+
+json
+{
+"message": "Unauthorized"
+}
+✅ Key Changes in This Update
+
+Added getLoggedInUser API to fetch user details using JWT authentication.
+
+Added validation for req.user and proper unauthorized response.
+
+Improved logging for debugging JWT token handling.
