@@ -46,7 +46,6 @@ const registerUser = async (req, res) => {
 };
 const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log("EEEEE,PPPP", email, password);
   try {
     if (!validator.isEmail(email)) {
       return res
@@ -54,13 +53,17 @@ const login = async (req, res) => {
         .json({ message: "User with this email is not foound!" });
     }
     const user = await User.findOne({ email });
-    const isValidpassword = await bcrypt.compare(password, user.password);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "User with this email is not found!" });
+    }
+    const isValidpassword = await bcrypt.compare(password, user?.password);
     if (!isValidpassword) {
       return res.status(400).json({ message: "Incorrect credentials" });
     }
 
     const token = await user.getJWT();
-    console.log("TOKEN in login", token);
 
     res.cookie("token", token, { httpOnly: true }); // you can expire cookie alsos
     // res.send(user);
@@ -70,8 +73,7 @@ const login = async (req, res) => {
       user
     });
   } catch (error) {
-    console.log("Error in login");
-    console.log(error);
+    return res.status(400).json({ message: "Failed to login" });
   }
 };
 const searchUser = async (req, res) => {
@@ -105,7 +107,6 @@ const searchUser = async (req, res) => {
       data: result
     });
   } catch (error) {
-    console.error("Search error:", error);
     res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -118,14 +119,11 @@ const getLoggedInUser = async (req, res) => {
     if (!req.user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    console.log("REQ>>>>", req.token);
 
     return res
       .status(200)
       .json({ message: "User fetched successfully", user: req.user });
   } catch (error) {
-    console.log(error);
-
     return res
       .status(500)
       .json({ message: "Server error", error: error.message });
