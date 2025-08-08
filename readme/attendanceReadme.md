@@ -127,3 +127,112 @@ Security: JWT-based authentication for every attendance action.
 Validation: Prevents duplicate logins and logouts.
 
 Scalability: Can easily extend to track multiple sessions or shifts.
+
+<!-- TO GET ALL THE ATTENDANCE OF A USER -->
+
+## getAllAttendance Controller & Route
+
+### Purpose
+
+The `getAllAttendance` function is an Express controller that retrieves **all attendance records** for a specific user from the database. It allows the frontend or any API consumer to fetch a user’s complete attendance history.
+
+---
+
+### Function Overview
+
+```js
+const getAllAttendance = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const allAttendance = await Attendance.find({ userId });
+    return res.status(200).json({
+      message: "Attendance fetched successfully",
+      data: allAttendance
+    });
+  } catch (error) {
+    console.log("Error fetching attendance:", error);
+    return res.status(400).json({ message: "Did not get attendance" });
+  }
+};
+```
+
+- **Input:**
+  - `req.params.id` — the user’s unique identifier (userId) passed as a route parameter.
+
+- **Process:**
+  - Queries the `Attendance` collection to find all records matching the given `userId`.
+
+- **Output:**
+  - On success, returns HTTP status `200` with JSON containing all attendance records for that user.
+  - On failure, logs the error and returns status `400` with an error message.
+
+---
+
+### API Route
+
+To expose this controller function, a route like the following is typically added:
+
+```js
+import express from "express";
+import { getAllAttendance } from "../controllers/attendance.controller.js";
+
+const router = express.Router();
+
+router.get("/attendance/get-attendance/:id", getAllAttendance);
+
+export default router;
+```
+
+- **HTTP Method:** `GET`
+- **Endpoint:** `/attendance/get-attendance/:id`
+- **Route Parameter:** `id` — the user’s ID to fetch attendance for.
+
+---
+
+### Usage
+
+- The frontend calls this endpoint with the user’s ID to fetch their attendance records, for example:
+
+```
+GET /attendance/get-attendance/64f76a4f12345abcde6789f0
+```
+
+- The API responds with a JSON payload:
+
+```json
+{
+  "message": "Attendance fetched successfully",
+  "data": [
+    {
+      "_id": "64f7701a12345abcde6789f1",
+      "userId": "64f76a4f12345abcde6789f0",
+      "date": "2025-08-08",
+      "status": "in",
+      "loggedInAt": "09:00:00",
+      "loggedOutAt": "17:30:00"
+    },
+    ...
+  ]
+}
+```
+
+---
+
+### Error Handling
+
+- If an error occurs during database query, the API responds with:
+
+```json
+{
+  "message": "Did not get attendance"
+}
+```
+
+- HTTP status code: `400`
+
+---
+
+### Notes
+
+- Make sure that the user ID passed is valid and that authentication/authorization is handled elsewhere in your app to secure this endpoint.
+- This function assumes a MongoDB `Attendance` model exists with fields such as `userId`, `date`, `loggedInAt`, and `loggedOutAt`.
